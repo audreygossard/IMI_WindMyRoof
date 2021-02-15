@@ -78,4 +78,11 @@ t, v, o, c, p = euler(f, 0, 20, 1000, 0)
 print(f"La valeur optimale expérimentale de omega est : {o[-1]:.3f}\nCelle de P est : {p[-1]:.3f}")
 print(f"La valeur optimale théorique de omega est : {om_theo:.3f}")
 print(f"Pourcentage d'erreur entre valeur théorique et valeur exp : {abs(o[-1]- om_theo)*100:.2f}")
+print(f"Puissance moyenne : {np.average(p):.2f}")
 display(t,v,o,c,p)
+
+# faire varier C_e, et observer la puissance moyenne
+# coder un algorithme pour piloter la meilleure puissance moyenne,
+# la meilleure puissance
+# rajouter des variations dans le vent (V_array avec les composantes non constantes)
+# rajouter un bruit gaussien
