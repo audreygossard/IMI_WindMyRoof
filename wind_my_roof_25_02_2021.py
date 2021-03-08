@@ -172,7 +172,7 @@ def compute_relaxation_time(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e
 
     for n in range(0, N_samples-1):
         
-        if n > n_min and (om[n] - om[n - n_min]) / om[n - n_min] < eps:
+        if n > n_min and (om_array[n] - om_array[n - n_min]) / om_array[n - n_min] < eps:
             return n - n_min
 
         cur_time = t_array[n]
