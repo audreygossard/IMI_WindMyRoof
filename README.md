@@ -10,3 +10,8 @@ Nous allons ainsi chercher à identifier ce temps caractéristique et étudier s
 
 Une seconde idée consiste à d'abord imposer un delta C_e plus grand que celui visé pour réduire le temps de retour à l'équilibre et ensuite remettre C_e à la valeur cible : on obtiendrait alors une itération plus rapide.
 
+### Pour le 15 mars
+
+- Identifier les paramètres qui ont une influence sur le temps de relaxation
+- Fonction qui renvoit le temps de relaxation pour différentes valeurs de paramètres (tableau de dimension le nbr de paramètres qui influent sur le temps de relaxation)
+- Fonction d'interpolation qui prend en entrée des paramètres et renvoit le temps de relaxation
