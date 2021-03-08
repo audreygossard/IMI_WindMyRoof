@@ -14,4 +14,4 @@ Une seconde idée consiste à d'abord imposer un delta C_e plus grand que celui 
 
 - Identifier les paramètres qui ont une influence sur le temps de relaxation
 - Fonction qui renvoit le temps de relaxation pour différentes valeurs de paramètres (tableau de dimension le nbr de paramètres qui influent sur le temps de relaxation)
-- Fonction d'interpolation qui prend en entrée des paramètres et renvoit le temps de relaxation
+- Fonction d'interpolation qui prend en entrée des paramètres et renvoit le temps de relaxation.
