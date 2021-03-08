@@ -35,20 +35,20 @@ def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array,
     't_fin' (float) : ending time of the scheme,
     'N_samples' (int) : number of time's samples,
     'u_origin' (float) : origin value of 'fun' at time t=t_ini,
-    'V_array' (float array) : array containing wind's speed. Must be of size 'N_samples',
+    'V_array' (float np.array) : array containing wind's speed. Must be of size 'N_samples',
     'J' (float) : moment of inertia,
     'C_r' (float) : couple ,
     'R' (float) : radius of the wind turbine,
     'k' (float) : coefficient k,
-    'C_e_array' (float array) : couple. Must be of size 'N_samples',
+    'C_e_array' (float np.array) : couple. Must be of size 'N_samples',
     'lamb' (float) : coefficient lambda
 
     Return :
-    't_array' (float array) : array of time sampled (size : N_samples),
-    'V_array' (float array) : array of wind's speed sampled (size : N_samples),
-    'om_array' (float array) : array of rotation speed sampled (size : N_samples),
-    'C_e_array' (float array) : array of C_e sampled (size : N_samples),
-    'P_array' (float array) : array of the power sampled (size : N_samples)
+    't_array' (float np.array) : array of time sampled (size : N_samples),
+    'V_array' (float np.array) : array of wind's speed sampled (size : N_samples),
+    'om_array' (float np.array) : array of rotation speed sampled (size : N_samples),
+    'C_e_array' (float np.array) : array of C_e sampled (size : N_samples),
+    'P_array' (float np.array) : array of the power sampled (size : N_samples)
     """
 
     dt = (t_fin - t_ini)/N_samples
