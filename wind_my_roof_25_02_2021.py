@@ -26,7 +26,7 @@ def f(t, u, J, C_r, R, k, V, C_e, lamb):
 
 def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array,
         J = _J, C_r = _C_r, R = _R,
-        k = _k, C_e = _C_e,
+        k = _k, C_e = C_e_array,
         lamb = _lamb):
     """
     Paramètres :
@@ -40,7 +40,7 @@ def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array,
     'C_r' (float) : couple ,
     'R' (float) : radius of the wind turbine,
     'k' (float) : coefficient k,
-    'C_e' (float) : couple ,
+    'C_e_array' (float array) : couple. Must be of size 'N_samples',
     'lamb' (float) : coefficient lambda
 
     Return :
@@ -59,14 +59,12 @@ def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array,
     for n in range(0, N_samples-1):
         cur_time = t_array[n]
         om_array[n+1] = om_array[n] + dt*fun(cur_time, om_array[n],
-                                        J, C_r, R, k, V_array[n], C_e, lamb)
+                                        J, C_r, R, k, V_array[n], C_e_array[n], lamb)
         if (om_array[n+1] < 0):
             om_array[n+1] = 0
-            #print("ATTENTION : omega est devenu négatif. Il a donc été mis à 0 au lieu de sa valeur'")
-
-    C_e_array = np.array([C_e]*N_samples)
-    C_e_array[0] = 0
-    P_array = om_array*C_e
+            #print("ATTENTION : omega est devenu négatif. Il a donc été mis à 0 au lieu de sa valeur'")    
+  
+    P_array = om_array*C_e_array
 
     return t_array, V_array, om_array, C_e_array, P_array
 
@@ -112,7 +110,7 @@ def compute_variation_P(fun, C_e_min, C_e_max, N_samples_C_e,
     'lamb' (float) : coefficient lambda
 
     Return :
-    'C_e_array' (float array) : array containing the different values of C_e_
+    'C_e_array_samp' (float array) : array containing the different values of C_e_
         (size : N_samples_C_e),
     'om_average_array' (float array) : array containing the average value
         (for a set value of C_e_) of the rotation speed omega (size : N_samples_C_e),
@@ -120,19 +118,21 @@ def compute_variation_P(fun, C_e_min, C_e_max, N_samples_C_e,
         (for a set value of C_e_) of the power omega (size : N_samples_C_e)
     """
 
-    C_e_array = np.linspace(C_e_min, C_e_max, N_samples_C_e)
+    C_e_array_samp = np.linspace(C_e_min, C_e_max, N_samples_C_e)
     om_average_array = np.zeros(N_samples_C_e)
     P_average_array = np.zeros(N_samples_C_e)
 
     for n in range(0, N_samples_C_e):
         V_array = generate_V_with_noises(N_samples_t, V)
+        
         # a chaque nouvelle valeur de couple C_e, on crée un nouveau vent
+        C_e_array = [C_e_array_sampl[n]]*N_samples_t
         t, v, o, c, p = euler(fun, t_ini, t_fin, N_samples_t, u_origin, V_array,
-                                J, C_r, R, k, C_e_array[n], lamb)
+                                J, C_r, R, k, C_e_array, lamb)
         om_average_array[n] = np.average(o)
         P_average_array[n] = np.average(p)
 
-    return C_e_array, om_average_array, P_average_array
+    return C_e_array_samp, om_average_array, P_average_array
 
 
 
