@@ -26,7 +26,7 @@ def f(t, u, J, C_r, R, k, V, C_e, lamb):
 
 def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array,
         J = _J, C_r = _C_r, R = _R,
-        k = _k, C_e = C_e_array,
+        k = _k, C_e_array,
         lamb = _lamb):
     """
     Paramètres :
