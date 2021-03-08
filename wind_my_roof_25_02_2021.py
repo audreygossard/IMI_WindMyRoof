@@ -10,7 +10,7 @@ _C_e = 20
 _lamb = 1
 
 eps = 0.05
-deltaT = 
+deltaT = 3
 
 om_theo = (_lamb*_V)/_R - 1/_R * np.sqrt((_C_r + _C_e)/_k)
 
@@ -27,9 +27,9 @@ def f(t, u, J, C_r, R, k, V, C_e, lamb):
     C_v = k*np.sign(lamb*V - R*u)*(lamb*V - R*u)**2
     return (C_v - C_e - C_r)/J
 
-def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array,
+def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e_array,
         J = _J, C_r = _C_r, R = _R,
-        k = _k, C_e_array,
+        k = _k,
         lamb = _lamb):
     """
     Paramètres :
@@ -130,8 +130,8 @@ def compute_variation_P(fun, C_e_min, C_e_max, N_samples_C_e,
         
         # a chaque nouvelle valeur de couple C_e, on crée un nouveau vent
         C_e_array = [C_e_array_sampl[n]]*N_samples_t
-        t, v, o, c, p = euler(fun, t_ini, t_fin, N_samples_t, u_origin, V_array,
-                                J, C_r, R, k, C_e_array, lamb)
+        t, v, o, c, p = euler(fun, t_ini, t_fin, N_samples_t, u_origin, V_array, C_e_array,
+                                J, C_r, R, k, lamb)
         om_average_array[n] = np.average(o)
         P_average_array[n] = np.average(p)
 
