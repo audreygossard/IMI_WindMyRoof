@@ -9,6 +9,9 @@ _V = 10
 _C_e = 20
 _lamb = 1
 
+eps = 0.05
+deltaT = 
+
 om_theo = (_lamb*_V)/_R - 1/_R * np.sqrt((_C_r + _C_e)/_k)
 
 def generate_V_with_noises(N_samples, V = _V, sigma2 = 1):
@@ -134,6 +137,53 @@ def compute_variation_P(fun, C_e_min, C_e_max, N_samples_C_e,
 
     return C_e_array_samp, om_average_array, P_average_array
 
+def compute_relaxation_time(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e_array, eps,
+        J = _J, C_r = _C_r, R = _R,
+        k = _k,
+        lamb = _lamb):
+    """
+    Paramètres :
+    'fun' (fonction) : the function of the Euler scheme,
+    't_ini' (float) : beginning time of the scheme,
+    't_fin' (float) : ending time of the scheme,
+    'N_samples' (int) : maximum number of time's samples,
+    'u_origin' (float) : origin value of 'fun' at time t=t_ini,
+    'V_array' (float np.array) : array containing wind's speed. Must be of size 'N_samples',
+    'J' (float) : moment of inertia,
+    'C_r' (float) : couple ,
+    'R' (float) : radius of the wind turbine,
+    'k' (float) : coefficient k,
+    'C_e_array' (float np.array) : couple. Must be of size 'N_samples',
+    'lamb' (float) : coefficient lambda
+
+    Return :
+    't_array' (float np.array) : array of time sampled (size : N_samples),
+    'V_array' (float np.array) : array of wind's speed sampled (size : N_samples),
+    'om_array' (float np.array) : array of rotation speed sampled (size : N_samples),
+    'C_e_array' (float np.array) : array of C_e sampled (size : N_samples),
+    'P_array' (float np.array) : array of the power sampled (size : N_samples)
+    """
+
+    dt = (t_fin - t_ini)/N_samples
+    t_array = np.linspace(t_ini, t_fin, N_samples)
+    om_array = np.zeros(N_samples)
+    om_array[0] = u_origin
+    n_min = int(deltaT/dt);
+
+    for n in range(0, N_samples-1):
+        
+        if n > n_min and (om[n] - om[n - n_min]) / om[n - n_min] < eps:
+            return n - n_min
+
+        cur_time = t_array[n]
+        om_array[n+1] = om_array[n] + dt*fun(cur_time, om_array[n],
+                                        J, C_r, R, k, V_array[n], C_e_array[n], lamb)
+        if (om_array[n+1] < 0):
+            om_array[n+1] = 0
+            #print("ATTENTION : omega est devenu négatif. Il a donc été mis à 0 au lieu de sa valeur'")    
+    
+    print("No equilibrium found")
+    return N_samples
 
 
 ## ===== Fonctions d'affichage =====
