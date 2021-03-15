@@ -1,5 +1,7 @@
 # List of the parameters hardcoded in this project
 
+import numpy as np
+
 _J = 10
 _C_r = 1.5
 _R = 0.53
