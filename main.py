@@ -1,6 +1,7 @@
 import numpy as np
 from display import *
 from simulation import *
+from parameters import *
 
 # ============| Affichage des données |=================
 # _N_samples = 1000

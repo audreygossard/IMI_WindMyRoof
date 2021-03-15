@@ -1,18 +1,5 @@
 import numpy as np
-
-_J = 10
-_C_r = 1.5
-_R = 0.53
-_k = 0.9
-_V = 10
-_C_e = 20
-_lamb = 1
-
-eps = 0.05
-deltaT = 3
-
-om_theo = (_lamb*_V)/_R - 1/_R * np.sqrt((_C_r + _C_e)/_k)
-
+from parameters import *
 
 def generate_V_with_noises(N_samples, V=_V, sigma2=1):
     V_ini = np.array([V]*N_samples)
@@ -131,7 +118,7 @@ def compute_variation_P(fun, C_e_min, C_e_max, N_samples_C_e,
         V_array = generate_V_with_noises(N_samples_t, V)
 
         # a chaque nouvelle valeur de couple C_e, on crée un nouveau vent
-        C_e_array = [C_e_array_sampl[n]]*N_samples_t
+        C_e_array = [C_e_array_sampl[n]] * N_samples_t
         t, v, o, c, p = euler(fun, t_ini, t_fin, N_samples_t, u_origin, V_array, C_e_array,
                               J, C_r, R, k, lamb)
         om_average_array[n] = np.average(o)
