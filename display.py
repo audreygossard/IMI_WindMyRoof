@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 
 ## ===== Fonctions d'affichage =====
 
+
 def display(t_array, V_array, om_array, C_e_array, P_array):
     fig, axs = plt.subplots(4)
     # ===========| Plot Vitesse V |================
@@ -39,12 +40,12 @@ def display_variation_P_omega_moyenne(C_e_array, om_ave_array, P_ave_array):
 
     # ===========| Plot moyenne de omega |================
     axs[0].plot(C_e_array, om_ave_array)
-    axs[0].scatter([C_e_array[ind_max]], [om_P_max], c='r' , s = 10)
+    axs[0].scatter([C_e_array[ind_max]], [om_P_max], c='r', s=10)
     axs[0].set_xlabel("C_e (N.m)")
     axs[0].set_ylabel("Moyenne de omega")
     # ===========| Plot moyenne de P |================
     axs[1].plot(C_e_array, P_ave_array)
-    axs[1].scatter([C_e_array[ind_max]], [P_max], c='r' , s = 10)
+    axs[1].scatter([C_e_array[ind_max]], [P_max], c='r', s=10)
     axs[1].set_xlabel("C_e (N.m)")
     axs[1].set_ylabel("Moyenne de la puissance")
 
@@ -56,4 +57,3 @@ def display_variation_P_omega_moyenne(C_e_array, om_ave_array, P_ave_array):
 
     fig.tight_layout()
     plt.show()
-

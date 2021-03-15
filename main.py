@@ -15,7 +15,8 @@ from simulation import *
 
 
 # ===========| Affichage des données moyennées |=============
-C_e_arr, om_ave_arr, P_ave_arr = compute_variation_P(f, 0, 200, 500, 0, 20, 1000, 0)
+C_e_arr, om_ave_arr, P_ave_arr = compute_variation_P(
+    f, 0, 200, 500, 0, 20, 1000, 0)
 display_variation_P_omega_moyenne(C_e_arr, om_ave_arr, P_ave_arr)
 
 

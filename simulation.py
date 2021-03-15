@@ -13,7 +13,8 @@ deltaT = 3
 
 om_theo = (_lamb*_V)/_R - 1/_R * np.sqrt((_C_r + _C_e)/_k)
 
-def generate_V_with_noises(N_samples, V = _V, sigma2 = 1):
+
+def generate_V_with_noises(N_samples, V=_V, sigma2=1):
     V_ini = np.array([V]*N_samples)
     noise = np.random.normal(0, sigma2, N_samples)
     return V_ini + noise
@@ -22,14 +23,16 @@ def generate_V_with_noises(N_samples, V = _V, sigma2 = 1):
 # on écrit l'équation sous la forme u'(t) = f(t, u(t))
 # dans notre cas, u = omega
 
+
 def f(t, u, J, C_r, R, k, V, C_e, lamb):
     C_v = k*np.sign(lamb*V - R*u)*(lamb*V - R*u)**2
     return (C_v - C_e - C_r)/J
 
+
 def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e_array,
-        J = _J, C_r = _C_r, R = _R,
-        k = _k,
-        lamb = _lamb):
+          J=_J, C_r=_C_r, R=_R,
+          k=_k,
+          lamb=_lamb):
     """
     Paramètres :
     'fun' (fonction) : the function of the Euler scheme,
@@ -61,11 +64,11 @@ def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e_array,
     for n in range(0, N_samples-1):
         cur_time = t_array[n]
         om_array[n+1] = om_array[n] + dt*fun(cur_time, om_array[n],
-                                        J, C_r, R, k, V_array[n], C_e_array[n], lamb)
+                                             J, C_r, R, k, V_array[n], C_e_array[n], lamb)
         if (om_array[n+1] < 0):
             om_array[n+1] = 0
-            #print("ATTENTION : omega est devenu négatif. Il a donc été mis à 0 au lieu de sa valeur'")    
-  
+            #print("ATTENTION : omega est devenu négatif. Il a donc été mis à 0 au lieu de sa valeur'")
+
     P_array = om_array*C_e_array
 
     return t_array, V_array, om_array, C_e_array, P_array
@@ -92,8 +95,8 @@ def compute_C_e_opt_theo(C_r, lamb, V, k):
 
 def compute_variation_P(fun, C_e_min, C_e_max, N_samples_C_e,
                         t_ini, t_fin, N_samples_t,
-                        u_origin, J = _J, C_r = _C_r, R = _R,
-                        k = _k, V = _V, lamb = _lamb):
+                        u_origin, J=_J, C_r=_C_r, R=_R,
+                        k=_k, V=_V, lamb=_lamb):
     """
     Paramètres :
     'fun' (fonction) : the function of the Euler scheme,
@@ -126,20 +129,21 @@ def compute_variation_P(fun, C_e_min, C_e_max, N_samples_C_e,
 
     for n in range(0, N_samples_C_e):
         V_array = generate_V_with_noises(N_samples_t, V)
-        
+
         # a chaque nouvelle valeur de couple C_e, on crée un nouveau vent
         C_e_array = [C_e_array_sampl[n]]*N_samples_t
         t, v, o, c, p = euler(fun, t_ini, t_fin, N_samples_t, u_origin, V_array, C_e_array,
-                                J, C_r, R, k, lamb)
+                              J, C_r, R, k, lamb)
         om_average_array[n] = np.average(o)
         P_average_array[n] = np.average(p)
 
     return C_e_array_samp, om_average_array, P_average_array
 
+
 def compute_relaxation_time(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e_array, eps,
-        J = _J, C_r = _C_r, R = _R,
-        k = _k,
-        lamb = _lamb):
+                            J=_J, C_r=_C_r, R=_R,
+                            k=_k,
+                            lamb=_lamb):
     """
     Paramètres :
     'fun' (fonction) : the function of the Euler scheme,
@@ -167,20 +171,19 @@ def compute_relaxation_time(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e
     t_array = np.linspace(t_ini, t_fin, N_samples)
     om_array = np.zeros(N_samples)
     om_array[0] = u_origin
-    n_min = int(deltaT/dt);
+    n_min = int(deltaT/dt)
 
     for n in range(0, N_samples-1):
-        
+
         if n > n_min and (om_array[n] - om_array[n - n_min]) / om_array[n - n_min] < eps:
             return n - n_min
 
         cur_time = t_array[n]
         om_array[n+1] = om_array[n] + dt*fun(cur_time, om_array[n],
-                                        J, C_r, R, k, V_array[n], C_e_array[n], lamb)
+                                             J, C_r, R, k, V_array[n], C_e_array[n], lamb)
         if (om_array[n+1] < 0):
             om_array[n+1] = 0
-            #print("ATTENTION : omega est devenu négatif. Il a donc été mis à 0 au lieu de sa valeur'")    
-    
+            #print("ATTENTION : omega est devenu négatif. Il a donc été mis à 0 au lieu de sa valeur'")
+
     print("No equilibrium found")
     return N_samples
-
