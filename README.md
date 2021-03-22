@@ -4,7 +4,7 @@
 
 C_e peut varier toutes les 500 ms, varie en rampe (linéairement) en 50 ms (ordres de grandeur).
 
-#### Pistes
+## Pistes
 
 Lorsque l'on fait varier C_e on observe que omega ne varie pas directement (inertie).
 Cela empêche d'appliquer une méthode de gradient directement puisque C_e a alors tendance à s'emballer.
