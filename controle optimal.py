@@ -23,6 +23,7 @@ def omega(t, C_e, omega0, J = _J, C_r = _C_r, R = _R, k = _k, V = _V, lamb = _la
     omega1 = lamb * V / R - np.sqrt((C_r + C_e) / k) / R * (saz + tan1) / (1 - saz * tan1)
     omega2 = lamb * V / R - np.sqrt((C_r + C_e) / k) / R * (saz + tanh1) / (1 + saz * tanh1)
     return max(omega1, omega2)
+# probleme calcul de omega: on a considéré que C_e est constant alors qu'ici on le fait varier!
 
 
 def p(t, C_e, omega0, T = _T, J = _J, C_r = _C_r, R = _R, k = _k, V = _V, lamb = _lamb):
@@ -100,3 +101,10 @@ for i, t in enumerate(time_tab):
 
 plt.plot(time_tab, C_e_tab)
 plt.show()
+
+# normalement on devrait avoir d'abord C_e très grand puis C_e = C_e_opt
+# ici C_e reste à zero (pourquoi?)
+# probleme: si on met C_e trop grand l'éolienne tourne à l'envers et le système s'emballe
+# on peut borner C_e dans minimize?
+# autre probleme: si T (temps final atteinte optimum) est trop grand, tanh = 1 et on divise par zero
+# comment choisir T pour qu'il soit assez grand pour qu'on atteigne l'optimum, mais pas trop quand même?
