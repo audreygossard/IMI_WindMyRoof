@@ -2,7 +2,6 @@ from scipy.optimize import minimize
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 #parametres:
 _J = 10
 _C_r = 1.5
@@ -14,16 +13,74 @@ _lamb = 1
 _T = 20
 t_init = 0
 
+"""
+def compute_variation_omega_theo(t_ini, t, om_origin, C_e, J = _J, C_r = _C_r, R = _R, k = _k, V = _V, lamb = _lamb):
 
+    omega_eq = lamb * V/R - 1/R*np.sqrt((C_r + C_e)/k)
+    beta = (C_r + C_e)*R/J
+    alpha = R*k*beta/J
+    z_0 = (lamb*V - R*om_origin)/beta
+
+    coef_cons = lamb*V/R
+    coef_c_r = np.sqrt((C_r + C_e)/k)/R
+    coef_ponde = np.sqrt(alpha)*z_0
+
+    coef_tanh = np.tanh(np.sqrt(alpha)*(t - t_ini))
+    om_pos = coef_cons - coef_c_r * (coef_ponde + coef_tanh)/(1 + coef_ponde * coef_tanh)
+
+    coef_tan = np.tan(np.sqrt(alpha)*(t - t_ini))
+    om_neg = coef_cons - coef_c_r * (coef_ponde + coef_tan)/(1 - coef_ponde * coef_tan)
+
+    # cas om_pos <= 0 pour accepter les cas où la tangente hyperbolique explose
+    if om_neg >= lamb*V/R and (om_pos >= lamb*V/R or om_pos <= 0):
+        omega = om_neg
+
+    else:
+        if om_origin >= lamb*V/R:
+            om_ini = om_origin
+            z_0 = (lamb*V - R*om_ini)/beta
+            coef_ponde = np.sqrt(alpha)*z_0
+            coef_tanh = np.tanh(np.sqrt(alpha)*(t - t_ini))
+
+            om_pos = coef_cons - coef_c_r * (coef_ponde + coef_tanh)/(1 + coef_ponde * coef_tanh)
+
+        omega = om_pos
+
+    return omega
+"""
+
+
+# on calcule tjrs omega à partir de la valeur précédente omega0 = omega[i-1] et donc on remet t_init = 0 et t = dt
 def omega(t, C_e, omega0, J = _J, C_r = _C_r, R = _R, k = _k, V = _V, lamb = _lamb):
-    sa = R/J*np.sqrt(k*(C_e+C_r))  # = sqrt(alpha)
-    saz = np.sqrt(k / (C_e + C_r)) * (lamb * V - R * omega0)  # = sqrt(alpha)*z0
-    tan1 = np.tan(sa * (t - t_init))
-    tanh1 = np.tanh(sa * (t - t_init))
-    omega1 = lamb * V / R - np.sqrt((C_r + C_e) / k) / R * (saz + tan1) / (1 - saz * tan1)
-    omega2 = lamb * V / R - np.sqrt((C_r + C_e) / k) / R * (saz + tanh1) / (1 + saz * tanh1)
-    return max(omega1, omega2)
-# probleme calcul de omega: on a considéré que C_e est constant alors qu'ici on le fait varier!
+
+    omega_eq = lamb * V/R - 1/R*np.sqrt((C_r + C_e)/k)
+    beta = (C_r + C_e)*R/J
+    alpha = R*k*beta/J
+    z_0 = (lamb*V - R*omega0)/beta
+
+    coef_cons = lamb*V/R
+    coef_c_r = np.sqrt((C_r + C_e)/k)/R
+    coef_ponde = np.sqrt(alpha)*z_0
+
+    coef_tanh = np.tanh(np.sqrt(alpha)*t)
+    om_pos = coef_cons - coef_c_r * (coef_ponde + coef_tanh)/(1 + coef_ponde * coef_tanh)
+
+    coef_tan = np.tan(np.sqrt(alpha)*t)
+    om_neg = coef_cons - coef_c_r * (coef_ponde + coef_tan)/(1 - coef_ponde * coef_tan)
+
+    # cas om_pos <= 0 pour accepter les cas où la tangente hyperbolique explose
+    if om_neg >= lamb*V/R and (om_pos >= lamb*V/R or om_pos <= 0):
+        return om_neg
+
+    else:
+        if omega0 >= lamb*V/R:
+            z_0 = (lamb*V - R*omega0)/beta
+            coef_ponde = np.sqrt(alpha)*z_0
+            coef_tanh = np.tanh(np.sqrt(alpha)*t)
+
+            om_pos = coef_cons - coef_c_r * (coef_ponde + coef_tanh)/(1 + coef_ponde * coef_tanh)
+
+        return om_pos
 
 
 def p(t, C_e, omega0, T = _T, J = _J, C_r = _C_r, R = _R, k = _k, V = _V, lamb = _lamb):
@@ -59,15 +116,15 @@ def f(omega, C_e, J = _J, C_r = _C_r, R = _R, k = _k, V = _V, lamb = _lamb):
 
 
 def g(omega, C_e):
-    return omega*C_e
+    return -omega*C_e
 
 
 def H(omega, p, C_e, J = _J, C_r = _C_r, R = _R, k = _k, V = _V, lamb = _lamb):
     return p*f(omega, C_e, J, C_r, R, k, V, lamb) + g(omega, C_e)
 
 
-def argmin_H(C_e, t, omega0, T = _T, J = _J, C_r = _C_r, R = _R, k = _k, V = _V, lamb = _lamb):
-    return H(omega(t, C_e, omega0, J, C_r, R, k, V, lamb),
+def argmin_H(C_e, t, delta_t, omega0, omega_prec, T = _T, J = _J, C_r = _C_r, R = _R, k = _k, V = _V, lamb = _lamb):
+    return H(omega(delta_t, C_e, omega_prec, J, C_r, R, k, V, lamb),
              p(t, C_e, omega0, T, J, C_r, R, k, V, lamb),
              C_e,
              J, C_r, R, k, V, lamb)
@@ -89,22 +146,19 @@ print("omega_opt = ", omega_opt)
 
 delta_t = 0.2
 time_n = 100
-time_tab = np.array([i*delta_t for i in range(1, time_n+1)])
+time_tab = np.array([i*delta_t for i in range(time_n)])
 C_e_tab = np.zeros(time_n)
+omega_tab = np.zeros(time_n)
+omega_tab[0] = omega0
 
-for i, t in enumerate(time_tab):
-    res = minimize(argmin_H, [10], args=(t, omega0), constraints=({'type': 'ineq', 'fun': lambda x:  x}))
+for i in range(1, time_n):
+    t = time_tab[i]
+    res = minimize(argmin_H, [50], args=(t, delta_t, omega0, omega_tab[i-1]), constraints=({'type': 'ineq', 'fun': lambda x:  x}, {'type': 'ineq', 'fun': lambda x:  100-x}))
     C_e_tab[i] = res.x
+    omega_tab[i] = omega(delta_t, C_e_tab[i], omega_tab[i-1])
     if i%10 == 0:
         print("C_e = ", C_e_tab[i])
-        print("omega = ", omega(t, C_e_tab[i], omega0))
+        print("omega = ", omega_tab[i])
 
 plt.plot(time_tab, C_e_tab)
 plt.show()
-
-# normalement on devrait avoir d'abord C_e très grand puis C_e = C_e_opt
-# ici C_e reste à zero (pourquoi?)
-# probleme: si on met C_e trop grand l'éolienne tourne à l'envers et le système s'emballe
-# on peut borner C_e dans minimize?
-# autre probleme: si T (temps final atteinte optimum) est trop grand, tanh = 1 et on divise par zero
-# comment choisir T pour qu'il soit assez grand pour qu'on atteigne l'optimum, mais pas trop quand même?
