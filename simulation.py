@@ -1,25 +1,32 @@
 import numpy as np
 from parameters import *
 
+
+_J, _C_r, _R, _k, _V, _C_e, _lamb = load_parameters()
+
 def generate_V_with_noises(N_samples, V=_V, sigma2=1):
     V_ini = np.array([V]*N_samples)
     noise = np.random.normal(0, sigma2, N_samples)
     return V_ini + noise
+
+def om_theo(C_r, R, k, V, C_e, lamb):
+    res = (lamb*V)/R - 1/R * np.sqrt((C_r + C_e)/k)
+    return res
 
 ## ===== Implémentation du schéma d'Euler =====
 # on écrit l'équation sous la forme u'(t) = f(t, u(t))
 # dans notre cas, u = omega
 
 
-def f(t, u, J, C_r, R, k, V, C_e, lamb):
+def f(u, J, C_r, R, k, V, C_e, lamb):
     C_v = k*np.sign(lamb*V - R*u)*(lamb*V - R*u)**2
     return (C_v - C_e - C_r)/J
 
 
-def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e_array,
-          J=_J, C_r=_C_r, R=_R,
-          k=_k,
-          lamb=_lamb):
+def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array,
+        J = _J, C_r = _C_r, R = _R,
+        k = _k, C_e = _C_e,
+        lamb = _lamb):
     """
     Paramètres :
     'fun' (fonction) : the function of the Euler scheme,
@@ -27,20 +34,20 @@ def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e_array,
     't_fin' (float) : ending time of the scheme,
     'N_samples' (int) : number of time's samples,
     'u_origin' (float) : origin value of 'fun' at time t=t_ini,
-    'V_array' (float np.array) : array containing wind's speed. Must be of size 'N_samples',
+    'V_array' (float array) : array containing wind's speed. Must be of size 'N_samples',
     'J' (float) : moment of inertia,
     'C_r' (float) : couple ,
     'R' (float) : radius of the wind turbine,
     'k' (float) : coefficient k,
-    'C_e_array' (float np.array) : couple. Must be of size 'N_samples',
+    'C_e' (float) : couple ,
     'lamb' (float) : coefficient lambda
 
     Return :
-    't_array' (float np.array) : array of time sampled (size : N_samples),
-    'V_array' (float np.array) : array of wind's speed sampled (size : N_samples),
-    'om_array' (float np.array) : array of rotation speed sampled (size : N_samples),
-    'C_e_array' (float np.array) : array of C_e sampled (size : N_samples),
-    'P_array' (float np.array) : array of the power sampled (size : N_samples)
+    't_array' (float array) : array of time sampled (size : N_samples),
+    'V_array' (float array) : array of wind's speed sampled (size : N_samples),
+    'om_array' (float array) : array of rotation speed sampled (size : N_samples),
+    'C_e_array' (float array) : array of C_e sampled (size : N_samples),
+    'P_array' (float array) : array of the power sampled (size : N_samples)
     """
 
     dt = (t_fin - t_ini)/N_samples
@@ -49,14 +56,15 @@ def euler(fun, t_ini, t_fin, N_samples, u_origin, V_array, C_e_array,
     om_array[0] = u_origin
 
     for n in range(0, N_samples-1):
-        cur_time = t_array[n]
-        om_array[n+1] = om_array[n] + dt*fun(cur_time, om_array[n],
-                                             J, C_r, R, k, V_array[n], C_e_array[n], lamb)
-        if (om_array[n+1] < 0):
+        om_array[n+1] = om_array[n] + dt*fun(om_array[n],
+                                        J, C_r, R, k, V_array[n], C_e, lamb)
+        if om_array[n+1] < 0:
             om_array[n+1] = 0
-            #print("ATTENTION : omega est devenu négatif. Il a donc été mis à 0 au lieu de sa valeur'")
+            # print("ATTENTION : omega est devenu négatif. Il a donc été mis à 0 au lieu de sa valeur'")
 
-    P_array = om_array*C_e_array
+    C_e_array = np.array([C_e]*N_samples)
+    C_e_array[0] = 0
+    P_array = om_array*C_e
 
     return t_array, V_array, om_array, C_e_array, P_array
 

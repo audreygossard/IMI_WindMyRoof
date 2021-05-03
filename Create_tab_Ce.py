@@ -1,13 +1,14 @@
 # fichier pour créer le gros tableau de variation de C_e, faire la fonction d'interpolation autour de ses valeurs,
 # l'enregistrer et extraire celui-ci d'un fichier texte
 
-import wind_my_roof_25_02_2021 as wmf
 import numpy as np
+import simulation
+import parameters
 
 
 def ind_reg_perm(om_array, om_theo, precision=0.1):
     """
-    On veut trouver le premier instant tel que la valeur finale est attainte (à une précision prêt)
+    On veut trouver le premier instant tel que la valeur finale est atteinte (à une précision près)
     L'ereur sur la valeur finale tourne aux alentours de 0.05% donc dès qu'on est à 0.1% de la valeur
     théorique c'est bon
     """
@@ -17,7 +18,7 @@ def ind_reg_perm(om_array, om_theo, precision=0.1):
 
 def val_sauv_om_t(om_array, t_array, ind_perm, nb_pts):
     """
-    On veut garder que un certain nombre de points (nb_pts) entre les indices 0 et ind_perm (exclu)
+    On ne veut garder qu'un certain nombre de points (nb_pts) entre les indices 0 et ind_perm (exclu)
     """
     # om_sauv = np.zeros(nb_pts)
     # t_sauv = np.zeros(nb_pts)
@@ -49,7 +50,7 @@ def create_tab_var_Ce(u_array: np.ndarray, V_array: np.ndarray, Cr_array: np.nda
     """
     'parameters_array' (array) : array des valeurs choisis pour le paramètre
 
-    On crée le tableau donnant les valuers de oméga en fonction du temps, en fonction de u initial, du C_e imposé et
+    On crée le tableau donnant les valeurrs de oméga en fonction du temps, en fonction de u initial, du C_e imposé et
     du vent (supposé constant ici) incident à l'éolienne
     """
     # etre a un niveau de C_e correspond à etre a un niveau de u en vent permanent donc pour l'instant plus simple de
@@ -70,9 +71,9 @@ def create_tab_var_Ce(u_array: np.ndarray, V_array: np.ndarray, Cr_array: np.nda
                         for ce, C_e in enumerate(Ce_array):
                             for l, lamb in enumerate(lamb_array):
                                 V_wind_array = np.array([V_wind] * N_samples)
-                                t, v, o, c, p = wmf.euler(wmf.f, 0, 20, N_samples, u_origin, V_wind_array,
+                                t, v, o, c, p = simulation.euler(simulation.f, 0, 20, N_samples, u_origin, V_wind_array,
                                                           C_r=C_r, R=R, k=k, C_e=C_e, lamb=lamb)
-                                om_t = wmf.om_theo(C_r, R, k, V_wind, C_e, lamb)
+                                om_t = simulation.om_theo(C_r, R, k, V_wind, C_e, lamb)
                                 k = ind_reg_perm(o, om_t)
                                 save_o, save_t = val_sauv_om_t(o, t, k, n_pts_om)
                                 tab[u, v_ind, cr, r, k_ind, ce, l] = np.transpose(np.vstack((save_t, save_o)))
@@ -156,14 +157,14 @@ def load_tab_Ce():
 
 if __name__ == '__main__':
     C_e_command = 20
-    _J, _C_r, _R, _k, _V, _C_e, _lamb = wmf.set_parameters_default()
-    om_t = wmf.om_theo(_C_r, _R, _k, 9, C_e_command, _lamb)
+    _J, _C_r, _R, _k, _V, _C_e, _lamb = parameters.load_parameters()
+    om_t = simulation.om_theo(_C_r, _R, _k, 9, C_e_command, _lamb)
 
     # ============| Affichage des données |=================
     _N_samples = 1000
     _V_array = np.array([9] * _N_samples)
 
-    t, v, o, c, p = wmf.euler(wmf.f, 0, 20, _N_samples, 0, _V_array, C_e=C_e_command)
+    t, v, o, c, p = simulation.euler(simulation.f, 0, 20, _N_samples, 0, _V_array, C_e=C_e_command)
 
     k = ind_reg_perm(o, om_t)
     print(f"Indice du régime permanent : {k}")
